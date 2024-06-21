@@ -1,0 +1,105 @@
+/* CalendarPage.css */
+
+.calendar-page {
+    display: flex;
+    height: 100vh;
+}
+
+.calendar-left-side {
+    width: 50%; /* Adjusted to 100% to cover the whole left side */
+    background-color: #D14836; /* Gmail red color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.full-image {
+    width: 100%;
+    height: 100%;
+}
+
+.calendar-right-side {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.calendar-right-side h2 {
+    margin-bottom: 20px;
+}
+
+.user-input {
+    width: 60%;
+    padding: 10px;
+    margin-bottom: 25px;
+    font-size: 16px;
+}
+
+.authenticate-button {
+    width: 120px;
+    height: 40px;
+    padding: 10px;
+    font-size: 16px;
+    color: white;
+    border: 1px solid #ccc;
+    background-color: #1877f2;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.authenticate-button:hover {
+    background-color: #365899;
+}
+
+.auth-code-input {
+    width: 60%;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    font-size: 16px;
+}
+
+.exchange-code-button,
+.fetch-events-button {
+    width: 160px;
+    height: 40px;
+    padding: 10px;
+    font-size: 16px;
+    color: white;
+    border: 1px solid #ccc;
+    background-color: #1877f2;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.exchange-code-button:hover,
+.fetch-events-button:hover {
+    background-color: #365899;
+}
+
+.message {
+    margin-top: 20px;
+    color: #ff0000;
+}
+
+.events {
+    margin-top: 20px;
+    text-align: left;
+    width: 80%;
+}
+
+.event {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+.event p {
+    margin: 5px 0;
+}
