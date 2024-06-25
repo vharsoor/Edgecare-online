@@ -5,7 +5,7 @@ function RedditPage() {
   const [redditId, setRedditId] = useState('');
 
   const handleDownload = () => {
-    fetch('http://127.0.0.1:5000/api/reddit', {
+    fetch('http://3.80.185.69:5000/api/reddit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -13,7 +13,18 @@ function RedditPage() {
       body: JSON.stringify({ reddit_id: redditId }),
     })
       .then(response => {
-        console.log(response);
+        
+        return response.blob();
+      })
+      .then(blob => {
+        
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${redditId}.zip`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       })
       .catch(error => {
         console.error('Error:', error);
