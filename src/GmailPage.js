@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './GmailPage.css';
+import {public_ip} from './config'
+//const PUBLICIP = `54.81.251.130`;
 
 function GooglePage() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -17,7 +19,7 @@ function GooglePage() {
     const formData = new FormData();
     formData.append('credentials_path', selectedFile);
 
-    fetch('http://127.0.0.1:1000/api/google_auth', {
+    fetch(`http://${public_ip}:4000/api/google_auth`, {
       method: 'POST',
       body: formData,
     })
@@ -37,7 +39,7 @@ function GooglePage() {
   };
 
   const handleExchangeCode = () => {
-    fetch('http://127.0.0.1:1000/api/exchange_code', {
+    fetch(`http://${public_ip}:4000/api/exchange_code`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -56,7 +58,7 @@ function GooglePage() {
   };
 
   const handleGmailCollect = () => {
-    fetch('http://127.0.0.1:1000/api/gmail_collect')
+    fetch(`http://${public_ip}:4000/api/gmail_collect`)
       .then(response => response.json())
       .then(data => {
         setEmails(data);
@@ -143,3 +145,6 @@ function GooglePage() {
 }
 
 export default GooglePage;
+
+
+
