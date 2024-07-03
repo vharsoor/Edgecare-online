@@ -10,17 +10,10 @@ function CalendarPage() {
   const [events, setEvents] = useState(null);
 
   const handleAuthenticate = () => {
-    if (!selectedFile) {
-      setMessage('Please select a credentials file to upload.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('credentials_path', selectedFile);
 
     fetch(`http://${public_ip}:4000/api/google_auth`, {
       method: 'POST',
-      body: formData,
+      headers: { 'Content-Type': 'application/json' },
     })
       .then(response => response.json())
       .then(data => {
@@ -43,7 +36,6 @@ function CalendarPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         code: authCode,
-        credentials_path: selectedFile.name
       }),
     })
       .then(response => response.json())
@@ -83,12 +75,6 @@ function CalendarPage() {
         <img src="/calenderUI.JPG" alt="Google" className="full-image" />
       </div>
       <div className="calendar-right-side">
-        <h2>Please upload your Google credentials file</h2>
-        <input
-          type="file"
-          className="file-input"
-          onChange={handleFileChange}
-        />
         <button className="authenticate-button" onClick={handleAuthenticate}>
           Authenticate with Google
         </button>
