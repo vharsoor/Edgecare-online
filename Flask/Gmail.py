@@ -8,6 +8,7 @@ import base64
 import urllib.error
 import datetime
 from flask_cors import CORS
+from config import public_ip
 
 app = Flask(__name__)
 CORS(app)
@@ -18,7 +19,7 @@ SCOPES = [
     'https://www.googleapis.com/auth/gmail.labels',
     'https://www.googleapis.com/auth/userinfo.profile',
     'https://www.googleapis.com/auth/userinfo.email',
-    #'https://www.googleapis.com/auth/calendar.readonly'
+    'https://www.googleapis.com/auth/calendar.readonly'
 ]
 
 TOKEN_PATH = 'token.pickle'
@@ -162,4 +163,4 @@ def get_message_details(service, user_id, msg_id):
         return None
 
 if __name__ == '__main__':
-    app.run(debug=True,port=1000)
+    app.run(debug=True,host='0.0.0.0',port=4000)

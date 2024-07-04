@@ -5,11 +5,12 @@ import urllib.parse
 from flask_cors import CORS
 
 # Allow OAuthlib to use HTTP for local development
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+#os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Set up Flask app
 app = Flask(__name__)
-CORS(app) 
+#CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # OAuth endpoints
 authorization_base_url = 'https://www.facebook.com/v12.0/dialog/oauth'
@@ -39,7 +40,8 @@ def facebook_auth():
 def callback():
     #if 'CLIENT_ID' not in app.config or 'CLIENT_SECRET' not in app.config or 'PUBLIC_URL' not in app.config:
         #return "Error: Missing configuration values. Ensure you have set CLIENT_ID, CLIENT_SECRET, and PUBLIC_URL via /api/facebook_auth endpoint.", 400
-    
+
+    print("Entering callback")
     code = request.args.get('code')
     client_id = app.config['CLIENT_ID']
     client_secret = app.config['CLIENT_SECRET']
@@ -51,6 +53,7 @@ def callback():
         'client_secret': client_secret,
         'code': code
     }
+    print("token_params : ",token_params)
     token_response = requests.get(token_url, params=token_params)
 
     try:
@@ -62,6 +65,7 @@ def callback():
 
         user_data = fetch_user_data(long_lived_token)
         if user_data:
+            print(jsonify(user_data))
             return jsonify(user_data)
         else:
             return 'Error fetching user data', 500
@@ -127,4 +131,4 @@ def fetch_user_data(access_token):
         return None
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,host='0.0.0.0')
