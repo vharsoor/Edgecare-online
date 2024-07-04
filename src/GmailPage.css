@@ -1,11 +1,11 @@
 /* GmailPage.css */
 
-.gmail-page {
+.google-page {
     display: flex;
     height: 100vh;
 }
 
-.gmail-left-side {
+.google-left-side {
     width: 50%;
     background-color: #D14836; /* Gmail red color */
     display: flex;
@@ -15,11 +15,10 @@
 
 .full-image {
     width: 100%;
-    /*height: auto; /* Ensure the image maintains its aspect ratio */
     height: 100%;
 }
 
-.gmail-right-side {
+.google-right-side {
     width: 50%;
     display: flex;
     flex-direction: column;
@@ -29,7 +28,7 @@
     padding: 20px;
 }
 
-.gmail-right-side h2 {
+.google-right-side h2 {
     margin-bottom: 20px;
 }
 

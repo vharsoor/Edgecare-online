@@ -6,7 +6,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 import base64
 import urllib.error
-from datetime import datetime
+import datetime
 from flask_cors import CORS
 from config import public_ip
 import json
@@ -39,7 +39,7 @@ def get_credentials(credentials_path):
 
 @app.route('/api/google_auth', methods=['POST'])
 def api_get_credentials():
-    if 'credentials_path' not in request.files:
+    '''if 'credentials_path' not in request.files:
         return jsonify({'message': 'No file part'}), 400
     
     file = request.files['credentials_path']
@@ -47,18 +47,25 @@ def api_get_credentials():
     if file.filename == '':
         return jsonify({'message': 'No selected file'}), 400
     
-    if file:
-        credentials_path = os.path.join('.', file.filename)
-        file.save(credentials_path)
-        auth_url = get_credentials(credentials_path)
-        return jsonify({'auth_url': auth_url}), 200
+    if file:'''
+    #credentials_path = os.path.join('.', file.filename)
+    #return jsonify({'message': 'File upload failed'}), 500
+    credentials_path = os.path.expanduser('~/google_creds.json')
     
-    return jsonify({'message': 'File upload failed'}), 500
+    # Ensure the credentials file exists
+    if not os.path.exists(credentials_path):
+        return jsonify({'message': 'Credentials file not found'}), 404
+    
+    # Get the authentication URL
+    auth_url = get_credentials(credentials_path)
+    
+    return jsonify({'auth_url': auth_url}), 200
 
 @app.route('/api/exchange_code', methods=['POST'])
 def exchange_code():
     code = request.json.get('code')
-    credentials_path = request.json.get('credentials_path')
+    #credentials_path = request.json.get('credentials_path')
+    credentials_path = os.path.expanduser('~/google_creds.json')
     
     flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
     flow.redirect_uri = REDIRECT_URI
