@@ -18,9 +18,10 @@ SCOPES = [
 ]
 
 TOKEN_PATH = 'token.pickle'
-REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+#REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+REDIRECT_URI = 'https://edgecare.stresswatch.net/api/exchange_code'
 
-def get_credentials(credentials_path):
+def get_credentials(credentials_path):  
     flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
     flow.redirect_uri = REDIRECT_URI
     auth_url, _ = flow.authorization_url(prompt='consent')
@@ -28,26 +29,29 @@ def get_credentials(credentials_path):
 
 @app.route('/api/google_auth', methods=['POST'])
 def api_get_credentials():
-    if 'credentials_path' not in request.files:
-        return jsonify({'message': 'No file part'}), 400
+    #if 'credentials_path' not in request.files:
+        #return jsonify({'message': 'No file part'}), 400
     
-    file = request.files['credentials_path']
+    #file = request.files['credentials_path']
+
+    #if file.filename == '':
+        #return jsonify({'message': 'No selected file'}), 400
     
-    if file.filename == '':
-        return jsonify({'message': 'No selected file'}), 400
-    
-    if file:
-        credentials_path = os.path.join('.', file.filename)
-        file.save(credentials_path)
-        auth_url = get_credentials(credentials_path)
-        return jsonify({'auth_url': auth_url}), 200
+    #if file:
+    #credentials_path = os.path.join('.', file.filename)
+    #file.save(credentials_path)
+    credentials_path = os.path.expanduser('./google_creds.json')
+    auth_url = get_credentials(credentials_path)
+    return jsonify({'auth_url': auth_url}), 200
     
     return jsonify({'message': 'File upload failed'}), 500
 
-@app.route('/api/exchange_code', methods=['POST'])
+@app.route('/api/exchange_code', methods=['GET'])
 def exchange_code():
-    code = request.json.get('code')
-    credentials_path = request.json.get('credentials_path')
+    #code = request.json.get('code')
+    code= request.args.get('code')
+    #credentials_path = request.json.get('credentials_path')
+    credentials_path = os.path.expanduser('./google_creds.json')
     
     flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
     flow.redirect_uri = REDIRECT_URI
@@ -56,10 +60,11 @@ def exchange_code():
     creds = flow.credentials
     app.config['creds'] = creds
     
-    return jsonify({'message': 'Credentials obtained successfully'}), 200
+    return api_fetch_calendar_events()
+    #return jsonify({'message': 'Credentials obtained successfully'}), 200
 
 
-@app.route('/api/fetch_calendar_events')
+#@app.route('/api/fetch_calendar_events')
 def api_fetch_calendar_events():
     events = fetch_calendar_events(app.config['creds'])
     return jsonify(events), 200
@@ -99,4 +104,5 @@ def fetch_calendar_events(creds):
     return calendar_events
 
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0',port=2000)
+    app.run(debug=True,host='0.0.0.0',port=4000)
+

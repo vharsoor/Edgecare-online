@@ -19,7 +19,8 @@ function CalendarPage() {
       .then(data => {
         if (data.auth_url) {
           setAuthUrl(data.auth_url);
-          window.open(data.auth_url, '_blank');
+          //window.open(data.auth_url, '_blank');
+          window.location.href = data.auth_url;
         } else {
           setMessage('Failed to get authorization URL.');
         }
@@ -32,7 +33,7 @@ function CalendarPage() {
 
   const handleExchangeCode = () => {
     fetch(`http://${public_ip}:4000/api/exchange_code`, {
-      method: 'POST',
+      method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         code: authCode,
@@ -80,19 +81,7 @@ function CalendarPage() {
         </button>
         {authUrl && (
           <div>
-            <p>Open the following URL in a new tab and authorize the application:</p>
-            <a href={authUrl} target="_blank" rel="noopener noreferrer">{authUrl}</a>
-          </div>
-        )}
-        {authUrl && (
-          <div>
-            <input
-              type="text"
-              value={authCode}
-              onChange={handleAuthCodeChange}
-              placeholder="Enter authorization code"
-              className="auth-code-input"
-            />
+            
             <button className="exchange-code-button" onClick={handleExchangeCode}>
               Exchange Code
             </button>
@@ -122,3 +111,4 @@ function CalendarPage() {
 }
 
 export default CalendarPage;
+

@@ -14,7 +14,7 @@ import zipfile
 import shutil
 from flask import send_file
 import praw
-
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -29,7 +29,8 @@ SCOPES = [
 ]
 
 TOKEN_PATH = 'token.pickle'
-REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+#REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+REDIRECT_URI = 'https://edgecare.stresswatch.net/api/exchange_code'
 
 def get_credentials(credentials_path):
     flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
@@ -39,18 +40,7 @@ def get_credentials(credentials_path):
 
 @app.route('/api/google_auth', methods=['POST'])
 def api_get_credentials():
-    '''if 'credentials_path' not in request.files:
-        return jsonify({'message': 'No file part'}), 400
-    
-    file = request.files['credentials_path']
-    
-    if file.filename == '':
-        return jsonify({'message': 'No selected file'}), 400
-    
-    if file:'''
-    #credentials_path = os.path.join('.', file.filename)
-    #return jsonify({'message': 'File upload failed'}), 500
-    credentials_path = os.path.expanduser('~/google_creds.json')
+    credentials_path = os.path.expanduser('./google_creds.json')
     
     # Ensure the credentials file exists
     if not os.path.exists(credentials_path):
@@ -61,11 +51,11 @@ def api_get_credentials():
     
     return jsonify({'auth_url': auth_url}), 200
 
-@app.route('/api/exchange_code', methods=['POST'])
+@app.route('/api/exchange_code', methods=['GET'])
 def exchange_code():
-    code = request.json.get('code')
+    code = request.args.get('code')
     #credentials_path = request.json.get('credentials_path')
-    credentials_path = os.path.expanduser('~/google_creds.json')
+    credentials_path = os.path.expanduser('./google_creds.json')
     
     flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
     flow.redirect_uri = REDIRECT_URI
@@ -74,14 +64,14 @@ def exchange_code():
     creds = flow.credentials
     app.config['creds'] = creds
     
-    return jsonify({'message': 'Credentials obtained successfully'}), 200
+    #return jsonify({'message': 'Credentials obtained successfully'}), 200
+    return api_fetch_calendar_events()
 
 @app.route('/api/gmail_collect')
 def api_gmail_collect():
     emails = gmail_collect(app.config['creds'])
     return jsonify(emails), 200
 
-@app.route('/api/fetch_calendar_events')
 def api_fetch_calendar_events():
     events = fetch_calendar_events(app.config['creds'])
     return jsonify(events), 200
@@ -393,7 +383,7 @@ def receive_reddit_id():
             "Subreddit": str(comment.subreddit),
             "Score": comment.score,
             "Unix timestamp Created at": comment.created_utc,
-            "Created at": datetime.utcfromtimestamp(comment.created_utc).strftime('%Y-%m-%d %H:%M:%S'),
+            "Created at": datetime.datetime.utcfromtimestamp(comment.created_utc).strftime('%Y-%m-%d %H:%M:%S'),
             "Comment ID": comment.id,
             "Parent ID": comment.parent_id,
             "Content": comment.body

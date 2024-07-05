@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './FacebookPage.css';
+import {public_ip} from './config'
 
 function FacebookPage() {
   const [clientId, setClientId] = useState('');
@@ -8,7 +9,7 @@ function FacebookPage() {
 
   const handleAuthenticate = () => {
     console.log("Starting authentication process...");
-    fetch('http://127.0.0.1:5000/api/facebook_auth', {
+    fetch(`http://${public_ip}:4000/api/facebook_auth`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
