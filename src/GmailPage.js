@@ -4,7 +4,7 @@ import {public_ip} from './config'
 //const PUBLICIP = `54.81.251.130`;
 
 function GooglePage() {
-  const [selectedFile, setSelectedFile] = useState(null);
+  //const [selectedFile, setSelectedFile] = useState(null);
   const [authUrl, setAuthUrl] = useState('');
   const [authCode, setAuthCode] = useState('');
   const [message, setMessage] = useState('');
@@ -26,7 +26,8 @@ function GooglePage() {
       .then(data => {
         if (data.auth_url) {
           setAuthUrl(data.auth_url);
-          window.open(data.auth_url, '_blank');
+          //window.open(data.auth_url, '_blank');
+	  window.location.href = data.auth_url;
         } else {
           setMessage('Failed to get authorization URL.');
         }
@@ -39,7 +40,7 @@ function GooglePage() {
 
   const handleExchangeCode = () => {
     fetch(`http://${public_ip}:4000/api/exchange_code`, {
-      method: 'POST',
+      method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         code: authCode,
@@ -56,27 +57,6 @@ function GooglePage() {
       });
   };
 
-  const handleGmailCollect = () => {
-    fetch(`http://${public_ip}:4000/api/gmail_collect`)
-      .then(response => response.json())
-      .then(data => {
-        setEmails(data);
-        setMessage('Emails fetched successfully!');
-      })
-      .catch(error => {
-        console.error('Error fetching emails:', error);
-        setMessage('Error fetching emails. Please try again.');
-      });
-  };
-
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
-  };
-
-  const handleAuthCodeChange = (event) => {
-    setAuthCode(event.target.value);
-  };
-
   return (
     <div className="google-page">
       <div className="google-left-side">
@@ -85,29 +65,6 @@ function GooglePage() {
       <div className="google-right-side">
         <button className="authenticate-button" onClick={handleAuthenticate}>
           Authenticate with Gmail
-        </button>
-        {authUrl && (
-          <div>
-            <p>Open the following URL in a new tab and authorize the application:</p>
-            <a href={authUrl} target="_blank" rel="noopener noreferrer">{authUrl}</a>
-          </div>
-        )}
-        {authUrl && (
-          <div>
-            <input
-              type="text"
-              value={authCode}
-              onChange={handleAuthCodeChange}
-              placeholder="Enter authorization code"
-              className="auth-code-input"
-            />
-            <button className="exchange-code-button" onClick={handleExchangeCode}>
-              Exchange Code
-            </button>
-          </div>
-        )}
-        <button className="fetch-emails-button" onClick={handleGmailCollect}>
-          Fetch Emails
         </button>
         {message && <p className="message">{message}</p>}
         {emails && (

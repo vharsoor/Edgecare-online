@@ -48,7 +48,7 @@ def api_get_credentials():
     
     # Get the authentication URL
     auth_url = get_credentials(credentials_path)
-    
+    print("auth_url : ",auth_url)
     return jsonify({'auth_url': auth_url}), 200
 
 @app.route('/api/exchange_code', methods=['GET'])
@@ -65,16 +65,22 @@ def exchange_code():
     app.config['creds'] = creds
     
     #return jsonify({'message': 'Credentials obtained successfully'}), 200
-    return api_fetch_calendar_events()
+    #return {api_gmail_collect();
+    calendar = api_fetch_calendar_events().get_json()
+    gmail = api_gmail_collect().get_json()
+    print("calendar type :", type(calendar))
+    #google = {**calendar,**gmail}
+    google = calendar + gmail
+    return jsonify(google)
 
-@app.route('/api/gmail_collect')
+#@app.route('/api/gmail_collect')
 def api_gmail_collect():
     emails = gmail_collect(app.config['creds'])
-    return jsonify(emails), 200
+    return jsonify(emails)#, 200
 
 def api_fetch_calendar_events():
     events = fetch_calendar_events(app.config['creds'])
-    return jsonify(events), 200
+    return jsonify(events)#, 200
 
 def gmail_collect(creds):
     service = build('gmail', 'v1', credentials=creds)
@@ -93,7 +99,8 @@ def gmail_collect(creds):
         if details:
             sent_emails.append(details)
 
-    return {'received_emails': received_emails, 'sent_emails': sent_emails}
+    #return {'received_emails': received_emails, 'sent_emails': sent_emails}
+    return [received_emails,sent_emails]
 
 def fetch_calendar_events(creds):
     service = build('calendar', 'v3', credentials=creds)
