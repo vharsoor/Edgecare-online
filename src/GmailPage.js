@@ -11,13 +11,8 @@ function GooglePage() {
   const [emails, setEmails] = useState(null);
 
   const handleAuthenticate = () => {
-    //if (!selectedFile) {
-      //setMessage('Please select a credentials file to upload.');
-      //return;
-    //}
-
     fetch(`http://${public_ip}:4000/api/google_auth`, {
-      method: 'POST',
+      method: 'GET',
       headers: {
       'Content-Type': 'application/json',
       },
@@ -40,7 +35,7 @@ function GooglePage() {
 
   const handleExchangeCode = () => {
     fetch(`http://${public_ip}:4000/api/exchange_code`, {
-      method: 'GET',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         code: authCode,

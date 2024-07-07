@@ -12,8 +12,8 @@ function CalendarPage() {
   const handleAuthenticate = () => {
 
     fetch(`http://${public_ip}:4000/api/google_auth`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', },
     })
       .then(response => response.json())
       .then(data => {
@@ -79,14 +79,6 @@ function CalendarPage() {
         <button className="authenticate-button" onClick={handleAuthenticate}>
           Authenticate with Google
         </button>
-        {authUrl && (
-          <div>
-            
-            <button className="exchange-code-button" onClick={handleExchangeCode}>
-              Exchange Code
-            </button>
-          </div>
-        )}
         <button className="fetch-events-button" onClick={handleFetchCalendarEvents}>
           Fetch Calendar Events
         </button>

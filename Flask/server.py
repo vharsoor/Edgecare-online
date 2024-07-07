@@ -29,7 +29,6 @@ SCOPES = [
 ]
 
 TOKEN_PATH = 'token.pickle'
-#REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 REDIRECT_URI = 'https://edgecare.stresswatch.net/api/exchange_code'
 
 def get_credentials(credentials_path):
@@ -38,7 +37,8 @@ def get_credentials(credentials_path):
     auth_url, _ = flow.authorization_url(prompt='consent')
     return auth_url
 
-@app.route('/api/google_auth', methods=['POST'])
+#Frontend fetches the auth URL from backend, which creates the URL using our app creds
+@app.route('/api/google_auth', methods=['GET'])
 def api_get_credentials():
     credentials_path = os.path.expanduser('./google_creds.json')
     
@@ -51,6 +51,7 @@ def api_get_credentials():
     print("auth_url : ",auth_url)
     return jsonify({'auth_url': auth_url}), 200
 
+#Get request as backend directly fethes auth code from the redirected URL
 @app.route('/api/exchange_code', methods=['GET'])
 def exchange_code():
     code = request.args.get('code')
@@ -64,8 +65,6 @@ def exchange_code():
     creds = flow.credentials
     app.config['creds'] = creds
     
-    #return jsonify({'message': 'Credentials obtained successfully'}), 200
-    #return {api_gmail_collect();
     calendar = api_fetch_calendar_events().get_json()
     gmail = api_gmail_collect().get_json()
     print("calendar type :", type(calendar))
