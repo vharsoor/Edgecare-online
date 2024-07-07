@@ -31,24 +31,6 @@ function CalendarPage() {
       });
   };
 
-  const handleExchangeCode = () => {
-    fetch(`http://${public_ip}:4000/api/exchange_code`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        code: authCode,
-      }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        setMessage(data.message || 'Authentication successful!');
-      })
-      .catch(error => {
-        console.error('Error during authentication:', error);
-        setMessage('Error during authentication. Please try again.');
-      });
-  };
-
   const handleFetchCalendarEvents = () => {
     fetch(`http://${public_ip}:4000/api/fetch_calendar_events`)
       .then(response => response.json())

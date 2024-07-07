@@ -33,25 +33,6 @@ function GooglePage() {
       });
   };
 
-  const handleExchangeCode = () => {
-    fetch(`http://${public_ip}:4000/api/exchange_code`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        code: authCode,
-        //credentials_path: selectedFile.name
-      }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        setMessage(data.message || 'Authentication successful!');
-      })
-      .catch(error => {
-        console.error('Error during authentication:', error);
-        setMessage('Error during authentication. Please try again.');
-      });
-  };
-
   return (
     <div className="google-page">
       <div className="google-left-side">

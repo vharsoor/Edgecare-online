@@ -19,6 +19,8 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
+#----------------GOOGLE--PLATFORMS------------------------
+
 SCOPES = [
     'openid',
     'https://www.googleapis.com/auth/gmail.readonly',
@@ -28,7 +30,6 @@ SCOPES = [
     'https://www.googleapis.com/auth/calendar.readonly'
 ]
 
-TOKEN_PATH = 'token.pickle'
 REDIRECT_URI = 'https://edgecare.stresswatch.net/api/exchange_code'
 
 def get_credentials(credentials_path):
@@ -171,6 +172,11 @@ def get_message_details(service, user_id, msg_id):
         print(f'An error occurred: {error}')
         return None
 
+
+#---------END--OF--GOOGLE--PLATFORMS---------------
+
+#-------------------FACEBOOK-----------------------
+
 authorization_base_url = 'https://www.facebook.com/v12.0/dialog/oauth'
 token_url = 'https://graph.facebook.com/v12.0/oauth/access_token'
 
@@ -196,8 +202,6 @@ def facebook_auth():
 
 @app.route('/callback', methods=['GET'])
 def callback():
-    #if 'CLIENT_ID' not in app.config or 'CLIENT_SECRET' not in app.config or 'PUBLIC_URL' not in app.config:
-        #return "Error: Missing configuration values. Ensure you have set CLIENT_ID, CLIENT_SECRET, and PUBLIC_URL via /api/facebook_auth endpoint.", 400
 
     print("Entering callback")
     code = request.args.get('code')
@@ -287,6 +291,10 @@ def fetch_user_data(access_token):
         return {'userInfo': user_info}
     except requests.exceptions.RequestException as e:
         return None
+
+#--------------END--OF--FACEBOOK--------------------
+
+#------------------REDDIT---------------------------
 
 @app.route('/api/reddit', methods=['POST'])
 def receive_reddit_id():
@@ -429,7 +437,9 @@ def receive_reddit_id():
     return send_file(f'{user_folder}.zip', as_attachment=True, download_name=zip_filename)
     # return jsonify({'message': 'Received Reddit User ID successfully'})
 
+#------------END--OF--REDDIT---------------
 
+#----------------SPOTIFY-------------------
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0',port=4000)
