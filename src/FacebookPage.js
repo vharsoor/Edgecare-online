@@ -10,11 +10,12 @@ function FacebookPage() {
   const handleAuthenticate = () => {
     console.log("Starting authentication process...");
     fetch(`http://${public_ip}:4000/api/facebook_auth`, {
-      method: 'POST',
+      //method: 'POST',
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, public_url: publicUrl }),
+      //body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, public_url: publicUrl }),
     })
       .then(response => response.json())
       .then(data => {
@@ -31,7 +32,7 @@ function FacebookPage() {
       });
   };
 
-  const handleInputChange = (event) => {
+  /*const handleInputChange = (event) => {
     const { name, value } = event.target;
     if (name === 'clientId') {
       setClientId(value);
@@ -40,39 +41,14 @@ function FacebookPage() {
     } else if (name === 'publicUrl') {
       setPublicUrl(value);
     }
-  };
+  };*/
 
   return (
     <div className="facebook-page">
       <div className="facebook-left-side">
-        <img src="/facebookUI.png" alt="Facebook" className="full-image" />
+        <img src="/FacebookUI.png" alt="Facebook" className="full-image" />
       </div>
       <div className="facebook-right-side">
-        <h2>Please enter your Facebook App credentials</h2>
-        <input
-          type="text"
-          placeholder="Enter Client ID"
-          className="user-input"
-          name="clientId"
-          value={clientId}
-          onChange={handleInputChange}
-        />
-        <input
-          type="text"
-          placeholder="Enter Client Secret"
-          className="user-input"
-          name="clientSecret"
-          value={clientSecret}
-          onChange={handleInputChange}
-        />
-        <input
-          type="text"
-          placeholder="Enter Public URL"
-          className="user-input"
-          name="publicUrl"
-          value={publicUrl}
-          onChange={handleInputChange}
-        />
         <button className="authenticate-button" onClick={handleAuthenticate}>
           Authenticate with Facebook
         </button>

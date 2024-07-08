@@ -5,6 +5,7 @@ import GmailPage from './GmailPage';
 import CalenderPage from './CalenderPage';
 import FacebookPage from './FacebookPage';
 import RedditPage from './RedditPage';
+import SpotifyPage from './SpotifyPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/calender" element={<CalenderPage />} />
         <Route path="/facebook" element={<FacebookPage />} />
         <Route path="/reddit" element={<RedditPage />} />
+	<Route path="/spotify" element={<SpotifyPage />} />
       </Routes>
     </Router>
   );
@@ -56,6 +58,12 @@ function Home() {
               <button className="button">Reddit</button>
             </Link>
           </div>
+	  <div className="button-with-image">
+	    <img src="spotify.jpg" alt="Spotify" className="button-image" />
+	    <Link to="/spotify" className="button-link">
+	      <button className="button">Spotify</button>
+	    </Link>
+	  </div>
         </div>
       </div>
     </div>

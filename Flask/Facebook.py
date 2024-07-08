@@ -7,6 +7,10 @@ from flask_cors import CORS
 # Allow OAuthlib to use HTTP for local development
 #os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
+client_id = '281055351768792'
+client_secret = '12aae2a46d55fd214c04f856e5c39fd8'
+public_url = 'https://edgecare.stresswatch.net'
+
 # Set up Flask app
 app = Flask(__name__)
 #CORS(app)
@@ -14,14 +18,14 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # OAuth endpoints
 authorization_base_url = 'https://www.facebook.com/v12.0/dialog/oauth'
-token_url = 'https://graph.facebook.com/v12.0/oauth/access_token'
+token_url_fb = 'https://graph.facebook.com/v12.0/oauth/access_token'
 
-@app.route('/api/facebook_auth', methods=['POST'])
+@app.route('/api/facebook_auth', methods=['GET'])
 def facebook_auth():
-    data = request.json
-    client_id = data.get('client_id')
-    client_secret = data.get('client_secret')
-    public_url = data.get('public_url')
+    #data = request.json
+    #client_id = data.get('client_id')
+    #client_secret = data.get('client_secret')
+    #public_url = data.get('public_url')
 
     # Save the credentials securely if needed
     app.config['CLIENT_ID'] = client_id
@@ -54,7 +58,7 @@ def callback():
         'code': code
     }
     print("token_params : ",token_params)
-    token_response = requests.get(token_url, params=token_params)
+    token_response = requests.get(token_url_fb, params=token_params)
 
     try:
         token_response.raise_for_status()
@@ -131,4 +135,4 @@ def fetch_user_data(access_token):
         return None
 
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0')
+    app.run(debug=True,host='0.0.0.0',port=4000)

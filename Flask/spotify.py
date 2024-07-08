@@ -27,8 +27,8 @@ token_url = 'https://accounts.spotify.com/api/token'
 def spotify_auth():
     
     auth_url = (
-        f"https://accounts.spotify.com/authorize?client_id={client_id_spotify}"
-        f"&redirect_uri={redirect_url_spotify}&scope=me"
+        f"https://accounts.spotify.com/authorize?response_type=code&client_id={client_id_spotify}"
+        f"&redirect_uri={redirect_url_spotify}&scope=user-read-recently-played"
     )   
 
     return jsonify({'auth_url': auth_url})
@@ -67,8 +67,8 @@ def fetch_spotify_data(access_token):
     response = requests.get(recent_played_url, headers=headers)
     user_data = response.json()
 
-    print("Top artists : ",user_data)
+    #print("Top artists : ",user_data)
     return user_data
 
 if __name__ == '__main__':
-    app.run(debug=True)#,host='0.0.0.0')
+    app.run(debug=True,host='0.0.0.0', port=4000)
