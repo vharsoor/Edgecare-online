@@ -6,6 +6,7 @@ import CalenderPage from './CalenderPage';
 import FacebookPage from './FacebookPage';
 import RedditPage from './RedditPage';
 import SpotifyPage from './SpotifyPage';
+import InstagramPage from './InstagramPage';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/facebook" element={<FacebookPage />} />
         <Route path="/reddit" element={<RedditPage />} />
 	<Route path="/spotify" element={<SpotifyPage />} />
+	<Route path="/instagram" element={<InstagramPage />} />
       </Routes>
     </Router>
   );
@@ -62,6 +64,12 @@ function Home() {
 	    <img src="spotify.jpg" alt="Spotify" className="button-image" />
 	    <Link to="/spotify" className="button-link">
 	      <button className="button">Spotify</button>
+	    </Link>
+	  </div>
+	  <div className="button-with-image">
+	    <img src="instagram.jpg" alt="Instagram" className="button-image" />
+	    <Link to="/instagram" className="button-link">
+	      <button className="button">Instagram</button>
 	    </Link>
 	  </div>
         </div>

@@ -1,0 +1,54 @@
+.instagram-page {
+    display: flex;
+    height: 100vh;
+}
+
+.instagram-left-side {
+    width: 50%;
+    background-color: #4267b2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.full-image {
+    width: 100%;
+    height: 100%;
+}
+
+.instagram-right-side {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.instagram-right-side h2 {
+    margin-bottom: 20px;
+}
+
+.user-input {
+    width: 60%;
+    padding: 10px;
+    margin-bottom: 25px;
+    font-size: 16px;
+}
+
+.authenticate-button {
+    width: 120px;
+    height: 40px;
+    padding: 10px;
+    font-size: 16px;
+    color: white;
+    border: 1px solid #ccc;
+    background-color: #1877f2;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.authenticate-button:hover {
+    background-color: #365899;
+}
