@@ -68,6 +68,12 @@ function Home() {
               <button className="button">Spotify</button>
             </Link>
           </div>
+	  <div className="button-with-image">
+	    <img src="instagram.jpg" alt="Instagram" className="button-image" />
+	    <Link to="/instagram" className="button-link">
+	      <button className="button">Instagram</button>
+	    </Link>
+	  </div>
           {/* <div className="button-with-image">
             <img src="chat.png" alt="Chat" className="button-image" />
             <Link to="/chat" className="button-link">
