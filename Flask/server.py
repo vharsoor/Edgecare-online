@@ -27,7 +27,11 @@ SCOPES = [
     'https://www.googleapis.com/auth/gmail.labels',
     'https://www.googleapis.com/auth/userinfo.profile',
     'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/calendar.readonly'
+    'https://www.googleapis.com/auth/calendar.readonly',
+    'https://www.googleapis.com/auth/chat.messages.readonly',
+    'https://www.googleapis.com/auth/chat.messages',
+    'https://www.googleapis.com/auth/chat.spaces',
+    'https://www.googleapis.com/auth/chat.admin.spaces'
 ]
 
 REDIRECT_URI = 'https://edgecare.stresswatch.net/api/exchange_code'
@@ -68,9 +72,10 @@ def exchange_code():
     
     calendar = api_fetch_calendar_events().get_json()
     gmail = api_gmail_collect().get_json()
+    chat = api_fetch_chat_messages().get_json()
     print("calendar type :", type(calendar))
     #google = {**calendar,**gmail}
-    google = calendar + gmail
+    google = calendar + gmail + chat
     return jsonify(google)
 
 #@app.route('/api/gmail_collect')
@@ -81,6 +86,10 @@ def api_gmail_collect():
 def api_fetch_calendar_events():
     events = fetch_calendar_events(app.config['creds'])
     return jsonify(events)#, 200
+
+def api_fetch_chat_messages():
+    chat_messages = get_chat_messages(app.config['creds'])
+    return jsonify(chat_messages)
 
 def gmail_collect(creds):
     service = build('gmail', 'v1', credentials=creds)
@@ -172,6 +181,77 @@ def get_message_details(service, user_id, msg_id):
         print(f'An error occurred: {error}')
         return None
 
+#--------------------------------------------------------------------------------------
+
+# def get_credentials():
+#     creds = None
+    
+#     if os.path.exists('token.pickle'):
+#         with open('token.pickle', 'rb') as token:
+#             creds = pickle.load(token)
+    
+#     if not creds or not creds.valid:
+#         if creds and creds.expired and creds.refresh_token:
+#             creds.refresh(Request())
+#         else:
+#             flow = InstalledAppFlow.from_client_secrets_file(
+#                 r'C:\Users\USER\Desktop\Edgecare\edgecare\Flask\client_secret_382500969024-ptpt03tjh99bcu2jga9o0htai1pieiqs.apps.googleusercontent.com.json', SCOPES, redirect_uri="http://127.0.0.1:5000")
+#             creds = flow.run_local_server(port=5000)
+        
+#         with open('token.pickle', 'wb') as token:
+#             pickle.dump(creds, token)
+    
+#     return creds
+
+def list_spaces(service):
+    # space means the chat group room or direct private messages
+    spaces = service.spaces().list().execute().get('spaces', [])
+    space_list = []
+    for space in spaces:
+        if 'displayName' in space:
+            space_list.append({'name': space['name'], 'displayName': space['displayName']})
+        else:
+            space_list.append({'name': space['name'], 'displayName': space['name']})
+    return space_list
+
+def list_messages(service, space_name):
+    # list all the content 
+    message_list = []
+    page_token = None
+    
+    while True:
+        if page_token:
+            response = service.spaces().messages().list(parent=space_name, pageToken=page_token).execute()
+        else:
+            response = service.spaces().messages().list(parent=space_name).execute()
+        
+        messages = response.get('messages', [])
+        for message in messages:
+            message_text = message.get('text', 'No text content')
+            message_list.append(message_text)
+        
+        page_token = response.get('nextPageToken')
+        if not page_token:
+            break
+    
+    return message_list
+
+def get_chat_messages(creds):
+    
+    service = build('chat', 'v1', credentials=creds)
+
+    spaces = list_spaces(service)
+    
+    # if messages list lower than 2
+    num_spaces = min(len(spaces), 2)
+    chat_messages = {}
+
+    for i in range(num_spaces):
+        space = spaces[i]
+        messages = list_messages(service, space['name'])
+        chat_messages[space['displayName']] = messages
+
+    return jsonify(chat_messages)
 
 #---------END--OF--GOOGLE--PLATFORMS---------------
 
