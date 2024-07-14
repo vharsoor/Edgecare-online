@@ -6,6 +6,7 @@ function FacebookPage() {
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const [publicUrl, setPublicUrl] = useState('');
+  const [output, setOutput] = useState(null);
 
   const handleAuthenticate = () => {
     console.log("Starting authentication process...");
@@ -23,7 +24,9 @@ function FacebookPage() {
         if (data.auth_url) {
           console.log("Redirecting to Auth URL:", data.auth_url);
           window.location.href = data.auth_url; // Redirect the user to the auth URL
-        } else {
+        } else if (data.output) {
+	  setOutput(data.output);
+	} else {
           console.error('Auth URL not received');
         }
       })
@@ -52,6 +55,9 @@ function FacebookPage() {
         <button className="authenticate-button" onClick={handleAuthenticate}>
           Authenticate with Facebook
         </button>
+	{output && (
+	  <pre>{JSON.stringify(output)}</pre>
+	)}
       </div>
     </div>
   );

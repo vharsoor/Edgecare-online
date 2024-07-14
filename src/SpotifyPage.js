@@ -8,6 +8,7 @@ function SpotifyPage() {
   const [authUrl, setAuthUrl] = useState('');
   const [authCode, setAuthCode] = useState('');
   const [message, setMessage] = useState('');
+  const [output, setOutput] = useState(null);
 
   const handleAuthenticate = () => {
     fetch(`http://${public_ip}:4000/api/spotify_auth`, {
@@ -19,10 +20,13 @@ function SpotifyPage() {
       .then(response => response.json())
       .then(data => {
         if (data.auth_url) {
-          setAuthUrl(data.auth_url);
 	  window.location.href = data.auth_url;
+        } else if (data.output){
+          setOutput(data.output);
+	  //const outputElement = document.getElementById('output');
+          //outputElement.textContent = JSON.stringify(data.output);
         } else {
-          setMessage('Failed to get authorization URL.');
+          setMessage('Failed to get authorization URL/output data.');
         }
       })
       .catch(error => {
@@ -41,6 +45,9 @@ function SpotifyPage() {
           Authenticate with Spotify
         </button>
         {message && <p className="message">{message}</p>}
+	      {output && (
+          <pre id="output">{JSON.stringify(output)}</pre>
+        )}
       </div>
     </div>
   );
