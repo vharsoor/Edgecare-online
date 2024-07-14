@@ -1,0 +1,48 @@
+/* LoginPage.css */
+.login-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.login-image {
+    width: 230px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-toggle-button {
+    position: absolute;
+    width: 52px;
+    height: 30px;
+    cursor: pointer;
+    left: 340px;
+}
+
+
+.login-page input {
+    width: 300px;
+    margin: 10px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.login-button {
+    width: 500px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #FFC627;
+    color:black;
+    border: 1px solid #ccc;
+    border-radius: 10px; 
+    cursor: pointer;
+}
