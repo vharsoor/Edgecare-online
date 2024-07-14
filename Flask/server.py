@@ -21,6 +21,29 @@ import refresh
 app = Flask(__name__)
 CORS(app)
 
+#----------------------Login Page-------------------------
+# Hardcoded credentials 
+HARDCODED_USERS = {
+    'edgecare1': 'visa1',
+    'edgecare2': 'visa2',
+    'edgecare3': 'visa3',
+    'edgecare4': 'visa4',
+    'edgecare5': 'visa5',
+}
+
+# Route for user login
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    if username in HARDCODED_USERS and HARDCODED_USERS[username] == password:
+        return jsonify({'message': 'Login successful'}), 200
+    else:
+        return jsonify({'message': 'Invalid credentials'}), 401
+#---------------------------------------------------------
+
 #----------------GOOGLE--PLATFORMS------------------------
 
 SCOPES = [
