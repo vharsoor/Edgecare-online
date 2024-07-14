@@ -84,6 +84,12 @@ function Home() {
               <button className="button">Chat</button>
             </Link>
           </div> */}
+          <div className="button-with-image">
+        	    <img src="instagram.jpg" alt="Instagram" className="button-image" />
+        	    <Link to="/instagram" className="button-link">
+        	      <button className="button">Instagram</button>
+        	    </Link>
+        	  </div>
         </div>
       </div>
     </div>
