@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import './App.css';
 import GmailPage from './GmailPage';
@@ -9,22 +9,32 @@ import SpotifyPage from './SpotifyPage';
 import InstagramPage from './InstagramPage';
 // import ChatPage from './ChatPage';
 
+import LoginPage from './LoginPage';
+
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/gmail" element={<GmailPage />} />
-        <Route path="/calender" element={<CalenderPage />} />
-        <Route path="/facebook" element={<FacebookPage />} />
-        <Route path="/reddit" element={<RedditPage />} />
-        <Route path="/spotify" element={<SpotifyPage />} />
-        <Route path="/instagram" element={<InstagramPage />} />
-        {/* <Route path="/chat" element={<ChatPage />} /> */}
-      </Routes>
+      {isAuthenticated ? (
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/gmail" element={<GmailPage />} />
+          <Route path="/calender" element={<CalenderPage />} />
+          <Route path="/facebook" element={<FacebookPage />} />
+          <Route path="/reddit" element={<RedditPage />} />
+          <Route path="/spotify" element={<SpotifyPage />} />
+          <Route path="/instagram" element={<InstagramPage />} />
+           {/* <Route path="/chat" element={<ChatPage />} /> */}
+        </Routes>
+      ) : (
+        <LoginPage setAuth={setIsAuthenticated} />
+      )}
     </Router>
   );
 }
+
+
 
 function Home() {
   return (
@@ -38,16 +48,16 @@ function Home() {
 
           <h2>Social Media Platform Source</h2>
 
-	  {/*<div className="button-with-image">
+          <div className="button-with-image">
             <img src="/gmail.jpg" alt="Gmail" className="button-image" />
             <Link to="/gmail" className="button-link">
               <button className="button">Gmail</button>
             </Link>
-          </div>*/}
+          </div>
           <div className="button-with-image">
-            <img src="/google.png" alt="google" className="button-image" />
+            <img src="/calender.JPG" alt="Calendar" className="button-image" />
             <Link to="/calender" className="button-link">
-              <button className="button">Google</button>
+              <button className="button">Calendar</button>
             </Link>
           </div>
           <div className="button-with-image">
@@ -68,12 +78,6 @@ function Home() {
               <button className="button">Spotify</button>
             </Link>
           </div>
-	  <div className="button-with-image">
-	    <img src="instagram.jpg" alt="Instagram" className="button-image" />
-	    <Link to="/instagram" className="button-link">
-	      <button className="button">Instagram</button>
-	    </Link>
-	  </div>
           {/* <div className="button-with-image">
             <img src="chat.png" alt="Chat" className="button-image" />
             <Link to="/chat" className="button-link">
