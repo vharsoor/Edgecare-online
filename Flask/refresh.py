@@ -269,6 +269,7 @@ def spotify_refresh():
 #---------------------END--OF--SPOTIFY----------------------
 
 if __name__ == "__main__":
+    os.system('printf "refrest code ran" > test.py')
     google_refresh()
     facebook_refresh()
     instagram_refresh()

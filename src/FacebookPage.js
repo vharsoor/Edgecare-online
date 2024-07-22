@@ -16,6 +16,7 @@ function FacebookPage() {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       //body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, public_url: publicUrl }),
     })
       .then(response => response.json())

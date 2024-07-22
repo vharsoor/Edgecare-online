@@ -48,12 +48,13 @@ function Home() {
 
           <h2>Social Media Platform Source</h2>
 
-          // <div className="button-with-image">
+	  {// <div className="button-with-image">
           //   <img src="/gmail.jpg" alt="Gmail" className="button-image" />
           //   <Link to="/gmail" className="button-link">
           //     <button className="button">Gmail</button>
           //   </Link>
           // </div>
+		  }
           <div className="button-with-image">
             <img src="/google.png" alt="google" className="button-image" />
             <Link to="/calender" className="button-link">
