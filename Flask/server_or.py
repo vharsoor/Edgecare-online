@@ -137,7 +137,7 @@ def api_get_credentials():
     #global user_id
     final_path = os.path.join(home_directory,'DB_token',session['user_id'],'google_token.json')
     if os.path.exists(final_path):
-        refresh.google_refresh()
+        refresh.google_refresh(final_path)
         creds=Credentials.from_authorized_user_file(final_path,SCOPES)
         app.config['creds'] = creds
         calendar = api_fetch_calendar_events().get_json()
@@ -688,7 +688,7 @@ def spotify_auth():
         print("bad luck")
 
     if os.path.exists(final_path):
-        refresh.spotify_refresh()
+        refresh.spotify_refresh(final_path)
         with open(final_path, 'r') as f:
             data = json.load(f)
             access_token = data.get('access_token')
@@ -771,7 +771,6 @@ def instagram_auth():
     #public_url = data.get('public_url')
     final_path = os.path.join(home_directory,'DB_token',session['user_id'],'ig_token.json')
     if os.path.exists(final_path):
-        refresh.instagram_refresh()
         with open(final_path, 'r') as f:
             data = json.load(f)
             access_token = data.get('access_token')

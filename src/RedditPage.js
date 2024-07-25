@@ -6,7 +6,7 @@ function RedditPage() {
   const [redditId, setRedditId] = useState('');
 
   const handleDownload = () => {
-    fetch(`http://${public_ip}:4000/api/reddit`, {
+    fetch(`https://${public_ip}/api/reddit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

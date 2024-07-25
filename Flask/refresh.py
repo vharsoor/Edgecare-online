@@ -1,8 +1,10 @@
 import requests
 import json
 from datetime import datetime,timezone
+import os
 
-
+home_directory = os.path.expanduser('~')
+db_token_path = os.path.join(home_directory, 'DB_token')
 
 #-----------------FACEBOOK------------------
 client_id = '281055351768792'
@@ -10,7 +12,7 @@ client_secret = '12aae2a46d55fd214c04f856e5c39fd8'
 public_url_fb = 'https://edgecare.stresswatch.net'
 redirect_uri_fb = f"{public_url_fb}/callback"
 token_url_fb = 'https://graph.facebook.com/v12.0/oauth/access_token'
-fb_token_path='./fb_token.json'
+#fb_token_path='./fb_token.json'
 
 def read_token_from_file(token_path):
     with open(token_path, 'r') as f:
@@ -42,7 +44,7 @@ def fb_exchange_token(client_id, client_secret, fb_token):
     else:
         raise Exception(f"Failed to exchange token: {data.get('error')}")
 
-def facebook_refresh():
+def facebook_refresh(fb_token_path):
     try:
         # Read the current token from the file
         current_token, expires_in_days = read_token_from_file(fb_token_path)
@@ -88,9 +90,9 @@ SCOPES = [
 ]
 
 REDIRECT_URI = 'https://edgecare.stresswatch.net/api/exchange_code'
-google_token_path = os.path.expanduser('./token.json')
+#google_token_path = os.path.expanduser('./token.json')
 
-def google_save_credentials(creds):
+def google_save_credentials(creds, google_token_path):
     with open(google_token_path, 'w') as token:
         token_data = {
             'token': creds.token,
@@ -128,20 +130,20 @@ def is_token_expired(expiry_timestamp):
         return expiry_timestamp < now
     return True
 
-def google_refresh_credentials(creds):
+def google_refresh_credentials(creds, path):
     if creds and creds.refresh_token:
         creds.refresh(Request())
         print("GOOGLE credentials refreshed")
-        google_save_credentials(creds)
+        google_save_credentials(creds, path)
         return creds
     return creds
 
-def google_refresh():
+def google_refresh(google_token_path):
     try:
         creds, expiry_timestamp = google_load_credentials(google_token_path)
 
         if creds is None or is_token_expired(expiry_timestamp):
-            creds = google_refresh_credentials(creds)
+            creds = google_refresh_credentials(creds, google_token_path)
         else:
             print("GOOGLE old credentials still alive")
 
@@ -163,7 +165,7 @@ public_url = 'https://edgecare.stresswatch.net'
 token_url_ig = 'https://api.instagram.com/oauth/access_token'
 redirect_uri_ig = f"{public_url}/instagram"
 long_lived_url_ig = 'https://graph.instagram.com/access_token'
-ig_token_path = './ig_token.json'
+#ig_token_path = './ig_token.json'
 
 def ig_exchange_token(client_id, client_secret, fb_token):
     params = {
@@ -178,7 +180,7 @@ def ig_exchange_token(client_id, client_secret, fb_token):
     else:
         raise Exception(f"Failed to exchange token: {data.get('error')}")
 
-def instagram_refresh():
+def instagram_refresh(ig_token_path):
     try:
         # Read the current token from the file
         current_token, expires_in_days = read_token_from_file(ig_token_path)
@@ -208,7 +210,7 @@ client_secret_spotify = '889ad9e4a1b244f183439951c4ae99d9'
 
 token_url = 'https://accounts.spotify.com/api/token'
 
-sp_token_path='./spotify_token.json'
+#sp_token_path='./spotify_token.json'
 
 # Function to read the token data from a file
 def spotify_read_token_data(filepath):
@@ -240,7 +242,7 @@ def spotify_refresh_access_token(client_id, client_secret, refresh_token):
 
     return response_data
 
-def spotify_refresh():
+def spotify_refresh(sp_token_path):
     # Read the current token data
     token_data = spotify_read_token_data(sp_token_path)
     refresh_token = token_data.get('refresh_token')
@@ -270,7 +272,23 @@ def spotify_refresh():
 
 if __name__ == "__main__":
     os.system('printf "refrest code ran" > test.py')
-    google_refresh()
-    facebook_refresh()
-    instagram_refresh()
-    spotify_refresh()
+    for root, dirs, files in os.walk(db_token_path):
+        for dir_name in dirs:
+            user_path = os.path.join(root, dir_name)
+            
+            print("user_path : ", user_path)
+            google_path = os.path.join(user_path, 'google_token.json')
+            if os.path.exists(google_path):
+                google_refresh(google_path)
+
+            fb_path = os.path.join(user_path, 'fb_token.json')
+            if os.path.exists(fb_path):
+                facebook_refresh(fb_path)
+
+            ig_path = os.path.join(user_path, 'ig_token.json')
+            if os.path.exists(ig_path):
+                instagram_refresh(ig_path)
+
+            sp_path = os.path.join(user_path, 'spotify_token.json')
+            if os.path.exists(sp_path):
+                spotify_refresh(sp_path)
