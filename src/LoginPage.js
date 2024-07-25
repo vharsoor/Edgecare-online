@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
+import {public_ip} from './config'
 
 function LoginPage({ setAuth }) {
     const [username, setUsername] = useState('');
@@ -10,7 +11,7 @@ function LoginPage({ setAuth }) {
 
     const handleLogin = async () => {
         try {
-            const response = await fetch('http://54.81.251.130:4000/login', {
+            const response = await fetch(`https://${public_ip}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

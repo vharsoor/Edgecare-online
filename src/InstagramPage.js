@@ -8,11 +8,12 @@ function InstagramPage() {
 
   const handleAuthenticate = () => {
     console.log("Starting authentication process...");
-    fetch(`http://${public_ip}:4000/api/instagram_auth`, {
+    fetch(`https://${public_ip}/api/instagram_auth`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     })
       .then(response => response.json())
       .then(data => {

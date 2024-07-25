@@ -22,7 +22,7 @@ from flask_session import Session
 app = Flask(__name__)
 # CORS(app)
 
-cors = CORS(app, resources={r"/*": {"origins": "http://54.81.251.130:3000", "supports_credentials": True}})
+cors = CORS(app, resources={r"/*": {"origins": "http://34.207.174.211:3000", "supports_credentials": True}})
 
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = 'supersecretkey'

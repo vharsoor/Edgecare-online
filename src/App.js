@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import React, { useState,useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
 import './App.css';
 import GmailPage from './GmailPage';
 import CalenderPage from './CalenderPage';
@@ -14,10 +14,79 @@ import LoginPage from './LoginPage';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+ useEffect(() => {
+    console.log("Entered useEffect")
+    const checkAuth = async () => {
+      console.log("Entered checkAuth")
+      try {
+	// Get the current path from the frontend
+        const currentPath = window.location.pathname;
+	const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+
+        // Construct the backend URL based on the frontend path
+        const backendURL = `https://backend.stresswatch.net${currentPath}?code=${code}`;
+
+        // Make the fetch request to the backend
+        const response = await fetch(backendURL, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        //if (response.ok) {
+         // setIsAuthenticated(true);
+	  //console.log("Already authenticated");
+        //} else {
+	  //console.log("Not authenticated")
+          //setIsAuthenticated(false);
+        //}
+      } catch (error) {
+        console.error('Error checking authentication:', error);
+        //setIsAuthenticated(false);
+      }
+    };
+
+
+    const checkAuthStatus = async () => {
+      console.log("Entered checkAuthStatus");
+      try {
+        const response = await fetch('https://backend.stresswatch.net/api/check-auth', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.authenticated) {
+          setIsAuthenticated(true);
+          console.log("User authenticated");
+        } else {
+          setIsAuthenticated(false);
+          console.log("User not authenticated");
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+        setIsAuthenticated(false);
+      }
+    };
+
+
+    checkAuth();
+    checkAuthStatus();
+    //const currentPath = window.location.pathname;
+    //if (currentPath.startsWith('/callback')) {
+      //checkAuth();
+    //} else {
+      //console.log('Not an API path');
+    //}
+  }, []);
+
   return (
     <Router>
+     <Routes>
       {isAuthenticated ? (
-        <Routes>
+        //<Routes>
+	 <>
           <Route path="/" element={<Home />} />
           <Route path="/gmail" element={<GmailPage />} />
           <Route path="/calender" element={<CalenderPage />} />
@@ -25,11 +94,14 @@ function App() {
           <Route path="/reddit" element={<RedditPage />} />
           <Route path="/spotify" element={<SpotifyPage />} />
           <Route path="/instagram" element={<InstagramPage />} />
-           {/* <Route path="/chat" element={<ChatPage />} /> */}
-        </Routes>
+	  <Route path="*" element={<Navigate to="/" replace />} />
+	 </>
+        //</Routes>
       ) : (
-        <LoginPage setAuth={setIsAuthenticated} />
+        <Route path="*" element={<LoginPage setAuth={setIsAuthenticated} />} />
+	//<LoginPage setAuth={setIsAuthenticated} />
       )}
+     </Routes>
     </Router>
   );
 }

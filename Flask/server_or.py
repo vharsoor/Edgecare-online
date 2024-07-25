@@ -21,10 +21,14 @@ import gencreds
 import rds
 from flask_session import Session
 from config import public_ip
+from datetime import timedelta
 
 app = Flask(__name__)
 #CORS(app,supports_credentials=True)
-cors = CORS(app, resources={r"/*": {"origins": f"http://{public_ip}:3000", "supports_credentials": True}})
+#cors = CORS(app, resources={r"/*": {"origins": f"http://{public_ip}:3000", "supports_credentials": True}})
+cors = CORS(app, resources={r"/*": {"origins": "https://edgecare.stresswatch.net", "supports_credentials": True}})
+
+home_directory = os.path.expanduser('~')
 
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -32,12 +36,13 @@ app.secret_key = 'supersecretkey'
 #app.secret_key = os.urandom(24)
 #app.config['SECRET_KEY'] = 'your_secret_key_here'
 
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)
 
-#app.config.update(
+app.config.update(
  #   SESSION_COOKIE_HTTPONLY=True,
-  #  SESSION_COOKIE_SECURE=False,  # Use True if using HTTPS
-   # SESSION_COOKIE_SAMESITE='Lax'
-#)
+    SESSION_COOKIE_SECURE=True,  # Use True if using HTTPS
+    SESSION_COOKIE_SAMESITE='None',
+)
 
 '''app.config.update(
     SESSION_TYPE='filesystem',  # You can use 'redis', 'memcached', etc.
@@ -53,25 +58,39 @@ app.secret_key = 'supersecretkey'
 #user_id=None
 #----------------------Login Page-------------------------
 
+@app.route('/api/check-auth', methods=['GET'])
+def check_auth():
+    # Check if user is authenticated
+    print("session in check-auth: ",session)
+    print("request cookies in check-auth: ",request.cookies)
+    if 'user_id' in session:
+        print("Will not redirect")
+        return jsonify({'authenticated': True}), 200
+    else:
+        print("Will be redirected")
+        return jsonify({'authenticated': False}), 401
+
 # Route for user login
 @app.route('/login', methods=['POST'])
 def login():
     #global user_id
+    print("Starting loggining")
+    #print("session user_id before : ",session['user_id'], session)
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
     __, user_id = username.rsplit("-", 1)
     #user_id=int(user_id)
-    app.config['user_id']=int(user_id)
     
-    session['user_id'] = int(user_id)
-    session.permanent = True
+    session['user_id'] = user_id
+    #session.permanent = True
+    print("session user_id is set : ",session['user_id'])
     print("Login credentials - Username: ",username,", Password: ",password)
     #print("session[user_id] : ",session['user_id'])
     #print("session id: ",request.cookies,"dict session : ",dict(session))
     if gencreds.check_credentials(username, password):
         response = jsonify({'message': 'Login successful'})
-        response.set_cookie('user_id', user_id, path='/', secure=False, httponly=True, samesite='Lax')
+        response.set_cookie('user_id', user_id, path='/', domain='stresswatch.net',secure=False, samesite='None')
         print("Set-Cookie header:", response.headers.get('Set-Cookie'))
         return response, 200
         #return jsonify({'message': 'Login successful'}), 200
@@ -108,6 +127,7 @@ def get_credentials(credentials_path):
     return auth_url
 
 def save_credentials(creds,path):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w') as token:
         token.write(creds.to_json())
 
@@ -115,18 +135,17 @@ def save_credentials(creds,path):
 @app.route('/api/google_auth', methods=['GET'])
 def api_get_credentials():
     #global user_id
-    if os.path.exists(token_path):
+    final_path = os.path.join(home_directory,'DB_token',session['user_id'],'google_token.json')
+    if os.path.exists(final_path):
         refresh.google_refresh()
-        #if token_path exists, we have token in it, check if its still valid
-        creds=Credentials.from_authorized_user_file(token_path,SCOPES)
-        #If creds expired and it has refresh_token in it, refresh the access_token
+        creds=Credentials.from_authorized_user_file(final_path,SCOPES)
         app.config['creds'] = creds
         calendar = api_fetch_calendar_events().get_json()
         gmail = api_gmail_collect().get_json()
         print("got calendar",calendar)
         chat = api_fetch_chat_messages().get_json()
         google = calendar + gmail + chat
-        print("request.cookies in FB:", request.cookies)
+        print("request.cookies in Google:", request.cookies)
         rds.insert_data(session['user_id'],google,"google")
         #rds.insert_data(app.config['user_id'],google,"google")
         response = {
@@ -150,7 +169,10 @@ def api_get_credentials():
 @app.route('/api/exchange_code', methods=['GET'])
 def exchange_code():
     #global user_id
+    final_path = os.path.join(home_directory,'DB_token',session['user_id'],'google_token.json')
+    print("Entering exchage_code")
     code = request.args.get('code')
+    print("Got the code : ",code)
     #credentials_path = request.json.get('credentials_path')
     credentials_path = os.path.expanduser('./google_creds.json')
     
@@ -160,13 +182,13 @@ def exchange_code():
     
     creds = flow.credentials
     app.config['creds'] = creds 
-    save_credentials(creds,token_path)
+    save_credentials(creds,final_path)
     print("google creds : ",creds)
-    
+    print("request.cookies using facebook:", request.cookies) 
     calendar = api_fetch_calendar_events().get_json()
     gmail = api_gmail_collect().get_json()
     chat = api_fetch_chat_messages().get_json()
-    print("calendar type :", type(calendar))
+    print("session['user'] : :", session['user_id'])
     #google = {**calendar,**gmail}
     google = calendar + gmail + chat
     rds.insert_data(session['user_id'],google,"google")
@@ -368,9 +390,10 @@ def facebook_auth():
     #client_id = data.get('client_id')
     #client_secret = data.get('client_secret')
     #public_url = data.get('public_url')
+    final_path = os.path.join(home_directory,'DB_token',session['user_id'],'fb_token.json')
     print("request.cookies using facebook:", request.cookies)
-    if os.path.exists(fb_token_path):
-        with open(fb_token_path, 'r') as file:
+    if os.path.exists(final_path):
+        with open(final_path, 'r') as file:
             data=json.load(file)
 
         access_token = data.get('access_token')
@@ -379,7 +402,6 @@ def facebook_auth():
             "auth_url": None,  # or set to the actual auth URL if available
             "output": user_data
         }
-        #print("spotify user_data : ",user_data)
         return jsonify(response)
     
     # Save the credentials securely if needed
@@ -393,11 +415,12 @@ def facebook_auth():
         f"&redirect_uri={redirect_uri_fb}&scope=user_likes,user_posts"
     )
 
-    return jsonify({'auth_url': auth_url})
+    return jsonify({'auth_url': auth_url}), 200
 
 @app.route('/callback', methods=['GET'])
 def callback():
 
+    final_path = os.path.join(home_directory,'DB_token',session['user_id'],'fb_token.json')
     print("Entering callback")
     code = request.args.get('code')
     client_id = app.config['CLIENT_ID']
@@ -420,7 +443,8 @@ def callback():
         long_lived_token_response = exchange_access_token(access_token)
         long_lived_token = long_lived_token_response.get('access_token')
         expires_in_fb = long_lived_token_response.get('expires_in')//86400
-        with open(fb_token_path, 'w') as f:
+        with open(final_path, 'w') as f:
+            os.makedirs(os.path.dirname(final_path), exist_ok=True)
             data = {
                 'access_token': access_token,
                 'expires_in': expires_in_fb,
@@ -638,12 +662,13 @@ def receive_reddit_id():
 
 #----------------SPOTIFY-------------------
 
-public_url = f'http://{public_ip}:4000'
+public_url = f'https://edgecare.stresswatch.net'
 
 #spotify creds
 client_id_spotify = '3ce7a0b9ecb34103a13bd8ee5637a73f'
 client_secret_spotify = '889ad9e4a1b244f183439951c4ae99d9'
 redirect_url_spotify = f"{public_url}/spotify"
+#redirect_url_spotify = f"http://34.207.174.211:4000/spotify"
 
 token_url = 'https://accounts.spotify.com/api/token'
 
@@ -651,7 +676,7 @@ sp_token_path = './spotify_token.json'
 
 @app.route('/api/spotify_auth', methods=['GET'])
 def spotify_auth():
-
+    final_path = os.path.join(home_directory,'DB_token',session['user_id'],'spotify_token.json')
     auth_url = (
         f"https://accounts.spotify.com/authorize?response_type=code&client_id={client_id_spotify}"
         f"&redirect_uri={redirect_url_spotify}&scope=user-read-recently-played"
@@ -662,9 +687,9 @@ def spotify_auth():
     else:
         print("bad luck")
 
-    if os.path.exists(sp_token_path):
+    if os.path.exists(final_path):
         refresh.spotify_refresh()
-        with open(sp_token_path, 'r') as f:
+        with open(final_path, 'r') as f:
             data = json.load(f)
             access_token = data.get('access_token')
             print("Spotify access_token : ",access_token)
@@ -682,6 +707,7 @@ def spotify_auth():
 #After user is redirected to redirect URL, directly use GET from backend to fetch the auth code
 @app.route('/spotify', methods=['GET'])
 def spotify_callback():
+    final_path = os.path.join(home_directory,'DB_token',session['user_id'],'spotify_token.json')
     code = request.args.get('code')
     token_params = {
         'grant_type': 'authorization_code',
@@ -693,7 +719,8 @@ def spotify_callback():
     print("spotify token_response:",token_response.json())
     try:
         token_response.raise_for_status()
-        with open(sp_token_path, 'w') as file:
+        with open(final_path, 'w') as file:
+            os.makedirs(os.path.dirname(final_path), exist_ok=True)
             json.dump(token_response.json(), file)
         
         access_token = token_response.json().get('access_token')
@@ -742,10 +769,10 @@ def instagram_auth():
     #client_id = data.get('client_id')
     #client_secret = data.get('client_secret')
     #public_url = data.get('public_url')
-
-    if os.path.exists(ig_token_path):
+    final_path = os.path.join(home_directory,'DB_token',session['user_id'],'ig_token.json')
+    if os.path.exists(final_path):
         refresh.instagram_refresh()
-        with open(ig_token_path, 'r') as f:
+        with open(final_path, 'r') as f:
             data = json.load(f)
             access_token = data.get('access_token')
             print("instagram : ",access_token)
@@ -772,7 +799,7 @@ def instagram_auth():
 
 @app.route('/instagram', methods=['GET'])
 def instagram_callback():
-
+    final_path = os.path.join(home_directory,'DB_token',session['user_id'],'ig_token.json')
     print("Entering callback")
     code = request.args.get('code')
 
@@ -795,7 +822,8 @@ def instagram_callback():
         long_lived_token_ig = long_lived_token_response_ig.get('access_token')
 
         expires_in_ig = long_lived_token_response_ig.get('expires_in')//86400
-        with open(ig_token_path, 'w') as f:
+        with open(final_path, 'w') as f:
+            os.makedirs(os.path.dirname(final_path), exist_ok=True)
             data = {
                 'access_token': long_lived_token_ig,
                 'expires_in': expires_in_ig,

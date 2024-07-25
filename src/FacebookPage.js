@@ -9,8 +9,7 @@ function FacebookPage() {
   const [output, setOutput] = useState(null);
 
   const handleAuthenticate = () => {
-    console.log("Starting authentication process...");
-    fetch(`http://${public_ip}:4000/api/facebook_auth`, {
+    fetch(`https://${public_ip}/api/facebook_auth`, {
       //method: 'POST',
       method: 'GET',
       headers: {

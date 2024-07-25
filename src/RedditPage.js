@@ -11,6 +11,7 @@ function RedditPage() {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({ reddit_id: redditId }),
     })
       .then(response => {

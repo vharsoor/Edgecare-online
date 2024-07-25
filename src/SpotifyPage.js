@@ -11,7 +11,7 @@ function SpotifyPage() {
   const [output, setOutput] = useState(null);
 
   const handleAuthenticate = () => {
-    fetch(`http://${public_ip}:4000/api/spotify_auth`, {
+    fetch(`https://${public_ip}/api/spotify_auth`, {
       method: 'GET',
       headers: {
       'Content-Type': 'application/json',

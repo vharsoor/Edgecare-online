@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import './CalendarPage.css';
 import {public_ip} from './config'
 
@@ -10,12 +10,15 @@ function CalendarPage() {
   const [events, setEvents] = useState(null);
   const [emails, setEmails] = useState(null);
   const [output, setOutput] = useState(null);
+  const [error, setError] = useState(null);
 
+  console.log('CalendarPage component mounted');
   const handleAuthenticate = () => {
 
-    fetch(`http://${public_ip}:4000/api/google_auth`, {
+    fetch(`https://${public_ip}/api/google_auth`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json', },
+      credentials: 'include',
     })
       .then(response => response.json())
       .then(data => {
@@ -36,26 +39,44 @@ function CalendarPage() {
       });
   };
 
-  const handleFetchCalendarEvents = () => {
-    fetch(`http://${public_ip}:4000/api/fetch_calendar_events`)
-      .then(response => response.json())
-      .then(data => {
-        setEvents(data);
-        setMessage('Calendar events fetched successfully!');
-      })
-      .catch(error => {
-        console.error('Error fetching calendar events:', error);
-        setMessage('Error fetching calendar events. Please try again.');
-      });
+ useEffect(() => {
+  const getCodeFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('code');
   };
 
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+  const fetchAuthCode = async () => {
+    const code = getCodeFromUrl();
+    
+    if (code) {
+      try {
+        const response = await fetch(`https://backend.stresswatch.net/api/exchange_code?code=${code}`, {
+          method: "GET",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to exchange code with backend');
+        }
+
+        const data = await response.json();
+        setEvents(data.calendar || []);
+        setEmails(data.gmail || { received_emails: [], sent_emails: [] });
+      } catch (err) {
+        setError('Error fetching code. Please try again.');
+        console.error('Error fetching data:', err);
+      }
+    } else {
+      setError('No authorization code found in URL.');
+    }
   };
 
-  const handleAuthCodeChange = (event) => {
-    setAuthCode(event.target.value);
-  };
+  fetchAuthCode();
+}, []);
+ 
 
   return (
     <div className="calendar-page">
@@ -66,9 +87,6 @@ function CalendarPage() {
         <button className="authenticate-button" onClick={handleAuthenticate}>
           Authenticate with Google
         </button>
-	  {/*<button className="fetch-events-button" onClick={handleFetchCalendarEvents}>
-          Fetch Calendar Events
-        </button>*/}
         {message && <p className="message">{message}</p>}
         {events && (
           <div className="events">
